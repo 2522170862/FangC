@@ -13,7 +13,7 @@ bool CharArrCmp(char *p, char *q, int len)
   }
   return flag;
 }
-String GetTime()  //获取当前时间
+String GetTime()  //获取时间
 {
   String timeString="",RxBuffer="";
  bool flag=false;
@@ -33,7 +33,7 @@ String GetTime()  //获取当前时间
         {
           timeString=RxBuffer.substring(9,28);
           //  timeString.replace("T"," ");
-          //Serial.println(Time_Cont);	
+          //Serial.println(Time_Cont);
           //lastTimeStr=timeString;
           flag=true;
           break;
@@ -252,7 +252,7 @@ String GetSensorData(uint8_t code,String hashCode) {
         value[2]=(out[11]<<8)+out[12];//当前温度设定值
         value[3]=(out[31]<<8)+out[32];//当前湿度设定值
         value[4]=(out[61]<<8)+out[62];//当前二氧化碳设定值
-      
+
         JsonArray dataArray = doc["data"].to<JsonArray>();
         JsonObject statusObj = dataArray.createNestedObject();
         statusObj["type"] = "statusSet";
@@ -298,7 +298,7 @@ String GetSensorData(uint8_t code,String hashCode) {
         faultObj["type"] = "AC";
         faultObj["faultState"] = faultHexStr;
        }
-      else 
+      else
        doc["result"] = false;
         break;
        }
@@ -325,7 +325,7 @@ String GetSensorData(uint8_t code,String hashCode) {
           dataObj["curHum"] = humidity;
           dataObj["curCO2"] = value[2];
        }
-      else 
+      else
        doc["result"] = false;
         break;
        }
