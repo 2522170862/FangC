@@ -334,19 +334,35 @@ bool isMqttConRight()
 
 bool isMqttConnect()
 {
-  const int bufferSize = 150;
-  char send_buf[bufferSize];
-  bool flag=false;
-    memset(send_buf, 0, bufferSize);
-    sprintf(send_buf, "AT+DTUCON?\r\n");
-    // 发送命令并检查结果
-    while(!flag)
-    {
-      if (sendCommand(send_buf, "1", 10000, 3) != Success) 
-        flag= false;
-      else
-        flag= true;
+  const uint32_t timeoutMs = 3000;
+  const char *command = "AT+DTUCON?\r\n";
+
+  if (!takeFourGSerial(timeoutMs + 1000)) {
+    return false;
+  }
+
+  clrRxBuffer();
+  debugPrint("send AT Command:");
+  debugPrint(command);
+  FOUR_G_SERIAL.write(command);
+
+  uint32_t startMs = millis();
+  while (millis() - startMs < timeoutMs) {
+    String response = ReadBuffer();
+    if (response.indexOf("+DTUCON=\"1\"") >= 0) {
+      debugPrintln(F("[4G] DTU is connected"));
+      releaseFourGSerial();
+      return true;
     }
-    return flag;
-  
+    if (response.indexOf("+DTUCON=\"0\"") >= 0) {
+      debugPrintln(F("[4G] DTU is disconnected"));
+      releaseFourGSerial();
+      return false;
+    }
+    delay(1);
+  }
+
+  debugPrintln(F("[4G] DTU status query timeout"));
+  releaseFourGSerial();
+  return false;
 }

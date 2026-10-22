@@ -59,21 +59,41 @@ bool FourG_Init() {
   FOUR_G_SERIAL.setTimeout(20);
   Mqtt_Connect_Status = false;
   enterFourGAtMode();
-  bool flag = isMqttConRight();
-  while (!flag) {
-    initMQTT(MyNode.nodeId, MyGlobal.pubTopic, MyGlobal.subTopic);
+  const uint8_t maxAttempts = 3;
+  bool flag = false;
+
+  for (uint8_t attempt = 1; attempt <= maxAttempts && !flag; attempt++) {
     flag = isMqttConRight();
-  }
-  disableMqttAutoPackets();
-  if (isMqttConnect()) {
-    Mqtt_Connect_Status = true;
-    lastLostMqtt = millis();
-    digitalWrite(mqtt_Led, HIGH);
-    //mqttConnectedEvent(true);
-    //subscribeTopic(subTopic);
-    flag=true;
-  } else {
+    if (!flag) {
+      debugPrint(F("[4G] MQTT configuration attempt "));
+      debugPrintln(attempt);
+      if (!initMQTT(MyNode.nodeId, MyGlobal.pubTopic, MyGlobal.subTopic)) {
+        flag = false;
+      } else {
+        delay(1000);
+        flag = isMqttConRight();
+      }
+    }
+
+    if (flag && disableMqttAutoPackets() && isMqttConnect()) {
+      Mqtt_Connect_Status = true;
+      lastLostMqtt = millis();
+      digitalWrite(mqtt_Led, HIGH);
+      //mqttConnectedEvent(true);
+      //subscribeTopic(subTopic);
+      break;
+    }
+
+    flag = false;
     Mqtt_Connect_Status = false;
+    if (attempt < maxAttempts) {
+      debugPrintln(F("[4G] MQTT is not connected, retrying"));
+      delay(3000);
+    }
+  }
+
+  if (!flag) {
+    digitalWrite(mqtt_Led, LOW);
   }
   //FourGMqttTopic = MyGlobal.pubTopic;
   //FourGSubTopic = MyGlobal.subTopic;

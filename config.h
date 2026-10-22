@@ -112,8 +112,8 @@ SemaphoreHandle_t  g_stateMutex;//线程中与loop 可能读取485冲突
 #define mqtt_Led 6 //  绿色的灯 mqtt
 #define ble_Led 2 //  蓝色的灯 BLE
 #define mySerial Serial1
-#define TXD_PIN 4
-#define RXD_PIN 5
+#define TXD_PIN 5
+#define RXD_PIN 4
 // #define UART_NUM (UART_NUM_1) // 表示第几个串口 UART0，UART1，UART2
 #define FOUR_G_SERIAL Serial0
 #define FOUR_G_BAUD 9600
